@@ -10,7 +10,7 @@
 **Scraper Github:** https://github.com/arapfaik/scraping-glassdoor-selenium  
 **Scraper Article:** https://towardsdatascience.com/selenium-tutorial-scraping-glassdoor-com-in-10-minutes-3d0915c6d905  
 **Youtube Guide:** https://www.youtube.com/watch?v=MpF9HENQjDo&list=PL2zq7klxX5ASFejJj80ob9ZAnBHdz5O1t&index=1
-**Flask Productionization:** (https://towardsdatascience.com/productionize-a-machine-learning-model-with-flask-and-heroku-8201260503d2)
+**Flask Productionization:** https://towardsdatascience.com/productionize-a-machine-learning-model-with-flask-and-heroku-8201260503d2
 
 ## Web Scraping
 Tweaked the web scraper GitHub repository (above) to scrape 100+ job postings from [here](https://www.glassdoor.com/Job/jobs.htm?sc.keyword=%22Data%20Analyst%22&clickSource=searchBox&locId=1&locT=N&locName=United%20States). With each job, we got the following:
