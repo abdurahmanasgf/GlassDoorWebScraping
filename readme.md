@@ -1,4 +1,4 @@
-# Data Science Salary Estimator: Project Overview 
+# Data Analyst Salary: Project Overview 
 * Scraped over 100+ job descriptions from glassdoor using python and selenium
 * Engineered features from the text of each job description to quantify the value companies put on python, excel, aws, and spark. 
 * Optimized Linear, Lasso, and Random Forest Regressors using GridsearchCV to reach the best model. 
@@ -26,6 +26,10 @@ Tweaked the web scraper GitHub repository (above) to scrape 100+ job postings fr
 *	Industry
 *	Sector
 *	Revenue
+
+In essence, we'll create a Python script that will produce a DataFrame similar to this:
+
+![alt text](https://github.com/abdurahmanasgf/GlassDoorWebScraping/blob/main/Dataframe.png)
 
 Python code did the following job with the script that has been created, automatically scrolling down the web page and clicking on each job in all job listings and clicking on the different panels to receive another detail information about the company. When it has scraped until the end, it will move on to the next page. The end product will look like the following simulation of Google Chrome. There is no human contact and interaction because everything is automated.
 
@@ -82,6 +86,11 @@ After scraping the data, I needed to clean it up to make it usable for our model
 ## EDA
 I looked at the distributions of the data and the value counts for the various categorical variables. Below are a few highlights from the pivot tables. 
 
-![alt text](https://github.com/PlayingNumbers/ds_salary_proj/blob/master/salary_by_job_title.PNG "Salary by Position")
-![alt text](https://github.com/PlayingNumbers/ds_salary_proj/blob/master/positions_by_state.png "Job Opportunities by State")
-![alt text](https://github.com/PlayingNumbers/ds_salary_proj/blob/master/correlation_visual.png "Correlations")
+![alt text](https://github.com/abdurahmanasgf/GlassDoorWebScraping/blob/main/Seniority.png "Salary by Position")
+
+![alt text](https://github.com/abdurahmanasgf/GlassDoorWebScraping/blob/main/output1.png "Job Opportunities by State")
+
+![alt text](https://github.com/abdurahmanasgf/GlassDoorWebScraping/blob/main/output2.png "Correlations 1")
+
+![alt text](https://github.com/abdurahmanasgf/GlassDoorWebScraping/blob/main/output3.png "Correlations 2")
+
