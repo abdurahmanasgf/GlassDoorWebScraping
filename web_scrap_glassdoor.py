@@ -5,7 +5,7 @@ import time
 import pandas as pd
 import pdb
 
-def get_jobs(keyword, num_jobs, verbose, path, slp_time):
+def get_jobs(num_jobs, verbose, path, slp_time):
     
     '''Gathers jobs as a dataframe, scraped from Glassdoor'''
     
@@ -19,38 +19,19 @@ def get_jobs(keyword, num_jobs, verbose, path, slp_time):
     driver = webdriver.Chrome(executable_path=path, options=options)
     driver.set_window_size(1120, 1000)
 
-    url = 'https://www.glassdoor.com/Job/jobs.htm?sc.keyword="' + keyword + '"&locT=C&locId=1147401&locKeyword=San%20Francisco,%20CA&jobType=all&fromAge=-1&minSalary=0&includeNoSalaryJobs=true&radius=100&cityId=-1&minRating=0.0&industryId=-1&sgocId=-1&seniorityType=all&companyId=-1&employerSizes=0&applicationType=0&remoteWorkType=0'
+    url = 'https://www.glassdoor.com/Job/jobs.htm?sc.keyword=%22Data%20Analyst%22&clickSource=searchBox&locId=1&locT=N&locName=United%20States'
     driver.get(url)
     jobs = []
-
-    while len(jobs) < num_jobs:  #If true, should be still looking for new jobs.
+ 
+    while len(jobs) < num_jobs:  #If true, should be still looking for new jobs.    
 
         #Let the page load. Change this number based on your internet speed.
         #Or, wait until the webpage is loaded, instead of hardcoding it.
         time.sleep(slp_time)
 
-        #Test for the "Sign Up" prompt and get rid of it.
-        # try:
-        #     driver.find_element(By.NAME, "selected").click()
-        # except ElementClickInterceptedException:
-        #     pass
-
-        # time.sleep(.1)
-
-        # try:
-        #     driver.find_element(By.NAME, "ModalStyle__xBtn___29PT9").click()  #clicking to the X.
-        # except NoSuchElementException:
-        #     pass
-#MainCol > div:nth-child(1) > ul
-        
-        #MainCol > div:nth-child(1) > ul
-        #JAModal > div > div.modal_main.jaCreateAccountModalWrapper.gdGrid > span > svg
-        #Going through each job in this page
-        # job_buttons = driver.find_element(By.CSS_SELECTOR, "#MainCol > div:nth-child(1) > ul").find_elements(By.CSS_SELECTOR, "*")  #jl for Job Listing. These are the buttons we're going to click.
         job_buttons=driver.find_elements(By.CSS_SELECTOR, ".css-1kjejvf.eigr9kq3")
         
         for job_button in job_buttons:  
-
             print("Progress: {}".format("" + str(len(jobs)) + "/" + str(num_jobs)))
             if len(jobs) >= num_jobs:
                 break
@@ -59,37 +40,37 @@ def get_jobs(keyword, num_jobs, verbose, path, slp_time):
                 driver.execute_script("arguments[0].click();", job_button)
                 # job_button.click() 
             except Exception as err:
-                pdb.set_trace()
                 pass
+            
+            #Test for the "Sign Up" prompt and get rid of it.
             try:
                 driver.find_element(By.CSS_SELECTOR, '#JAModal > div > div.modal_main.jaCreateAccountModalWrapper.gdGrid > span > svg').click() 
             except NoSuchElementException:
                 pass
-            
-            time.sleep(.1)
 
-
-            time.sleep(.1)
+            #Skip
+            if bool(driver.find_elements(By.CSS_SELECTOR, '#JDCol > div > div.css-17bh0pp.erj00if0 > h3')) == True:
+                continue
+            else:
+                pass
 
             collected_successfully = False
 
             while not collected_successfully:
                 try:
-                    # driver.find_elements(By.CSS_SELECTOR, ".css-1kjejvf.eigr9kq3")[1].find_element(By.CSS_SELECTOR, ".job-title.mt-xsm")
-                    company_name = driver.find_element(By.CLASS_NAME, "css-87uc0g.e1tk4kwz1").text.split("\n")[0]
+                    company_name = driver.find_element(By.CSS_SELECTOR, '#JDCol > div > article > div > div:nth-child(1) > div > div > div.css-vwxtm.evnfo7p1 > div.css-19txzrf.e14vl8nk0 > div.css-w04er4.e1tk4kwz6 > div.d-flex.justify-content-between').text.split('\n')[0]
                     location = driver.find_element(By.CLASS_NAME, "css-56kyx5.e1tk4kwz5").text
                     job_title = driver.find_element(By.CLASS_NAME, "css-1vg6q84.e1tk4kwz4").text
                     job_description = driver.find_element(By.CLASS_NAME, "jobDescriptionContent").text
                     collected_successfully = True
                 except Exception as err:
-                    pdb.set_trace()
                     print("ERROR BRO: ", err.msg)
-                    time.sleep(5)
-
-            try:
+                    time.sleep(3)
+            
+            if bool(driver.find_elements(By.CLASS_NAME, "css-1bluz6i.e2u4hf13")) == True:
                 salary_estimate = driver.find_element(By.CLASS_NAME, "css-1bluz6i.e2u4hf13").text
-            except NoSuchElementException:
-                salary_estimate = -1 #You need to set a "not found value. It's important."
+            else:
+                continue
 
             try:
                 rating = driver.find_element(By.CLASS_NAME, "css-1m5m32b.e1tk4kwz2").text
@@ -107,49 +88,48 @@ def get_jobs(keyword, num_jobs, verbose, path, slp_time):
 
             #Going to the Company tab...
             #clicking on this:
-            #<div class="tab" data-tab-type="overview"><span>Company</span></div>
-            
-            try:
-                size = driver.find_element(By.XPATH, '//*[@id="EmpBasicInfo"]/div[1]/div/div[1]/span[2]').text
-            except NoSuchElementException:
+            company_overview = {element.text.split('\n')[0]: element.text.split('\n')[1] for element in driver.find_elements(By.CSS_SELECTOR, '.css-rmzuhb.e1pvx6aw0')}
+
+            if company_overview.get("Size") is not None:
+                size = company_overview['Size']
+            else:
                 size = -1
 
-            try:
-                founded = driver.find_element(By.XPATH, '//*[@id="EmpBasicInfo"]/div[1]/div/div[2]/span[2]').text
-            except NoSuchElementException:
+            if company_overview.get("Founded") is not None:
+                founded = company_overview['Founded']
+            else:
                 founded = -1
 
-            try:
-                type_of_ownership = driver.find_element(By.XPATH,'//*[@id="EmpBasicInfo"]/div[1]/div/div[3]/span[2]').text
-            except NoSuchElementException:
+            if company_overview.get("Type") is not None:
+                type_of_ownership = company_overview['Type']
+            else:
                 type_of_ownership = -1
 
-            try:
-                industry = driver.find_element(By.XPATH,'//*[@id="EmpBasicInfo"]/div[1]/div/div[4]/span[2]').text
-            except NoSuchElementException:
+            if company_overview.get("Industry") is not None:
+                industry = company_overview['Industry']
+            else:
                 industry = -1
 
-
-            try:
-                sector = driver.find_element(By.XPATH,'//*[@id="EmpBasicInfo"]/div[1]/div/div[5]/span[2]').text
-            except NoSuchElementException:
+            if company_overview.get("Sector") is not None:
+                sector = company_overview['Sector']
+            else:
                 sector = -1
-
-            try:
-                revenue = driver.find_element(By.XPATH,'//*[@id="EmpBasicInfo"]/div[1]/div/div[6]/span[2]').text
-            except NoSuchElementException:
-                revenue = -1
-
+            
+            if company_overview.get("Revenue") is not None:
+                revenue = company_overview['Revenue']
+            else:
+                revenue = -1                          
 
             if verbose:
-                print("Size: {}".format(size))
-                print("Founded: {}".format(founded))
-                print("Type of Ownership: {}".format(type_of_ownership))
-                print("Industry: {}".format(industry))
-                print("Sector: {}".format(sector))
-                print("Revenue: {}".format(revenue))
-                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-
+                if len(driver.find_elements(By.CSS_SELECTOR, '.css-rmzuhb.e1pvx6aw0')) == 0:
+                    print("Size: {}".format(size))
+                    print("Founded: {}".format(founded))
+                    print("Type of Ownership: {}".format(type_of_ownership))
+                    print("Industry: {}".format(industry))
+                    print("Sector: {}".format(sector))
+                    print("Revenue: {}".format(revenue))
+                    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+            
 
             jobs.append({"Job Title" : job_title,
             "Salary Estimate" : salary_estimate,
@@ -165,11 +145,16 @@ def get_jobs(keyword, num_jobs, verbose, path, slp_time):
             "Revenue" : revenue})
             #add job to jobs
 
+
+        time.sleep(1)
         #Clicking on the "next page" button
         try:
-            driver.find_element(By.XPATH,'.//li[@class="next"]//a').click()
+            np= driver.find_element(By.XPATH, '//*[@id="MainCol"]/div[2]/div/div[1]/button[7]')
+            driver.execute_script("arguments[0].click();", np)
+            # driver.find_element(By.XPATH, '//*[@id="MainCol"]/div[2]/div/div[1]/button[7]').click()
+            time.sleep(1)
         except NoSuchElementException:
             print("Scraping terminated before reaching target number of jobs. Needed {}, got {}.".format(num_jobs, len(jobs)))
             break
-
+        
     return pd.DataFrame(jobs)  #This line converts the dictionary object into a pandas DataFrame.
